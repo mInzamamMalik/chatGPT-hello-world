@@ -4,15 +4,13 @@ import * as dotenv from 'dotenv'
 
 dotenv.config()
 
-
-
 const configuration = new Configuration({
     apiKey: process.env.OPENAI_API_KEY,
 });
 
 const openai = new OpenAIApi(configuration);
 const app = express();
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 5001;
 
 app.use(urlencoded({ extended: true }));
 app.use(json());
@@ -22,7 +20,7 @@ app.use((req, res, next) => {
 });
 
 
-app.post('/query', (req, res) => {
+app.post('/query', async (req, res) => {
 
     let result = await textGeneration(req.body.text);
 
@@ -48,12 +46,14 @@ const textGeneration = async (prompt) => {
             presence_penalty: 0.6,
             stop: ['Human:', 'AI:']
         });
+        console.log(response);
 
         return {
             status: 1,
             response: `${response.data.choices[0].text}`
         };
     } catch (error) {
+        console.log("error: ", error.response.data);
         return {
             status: 0,
             response: ''
